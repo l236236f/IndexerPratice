@@ -22,7 +22,8 @@ public class TransferEvent {
     private Long id;
 
     // 交易的唯一識別碼 (可在 Etherscan 查到)
-    @Column(nullable = false)
+    // 加上 unique = true 確保「冪等性」，即便重複掃描也不會重複入帳
+    @Column(nullable = false, unique = true)
     private String transactionHash;
 
     // 區塊雜湊，用來檢查分岔 (重要的安全指紋)
