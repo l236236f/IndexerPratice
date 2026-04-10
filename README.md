@@ -14,6 +14,10 @@
   - 非同步執行緒池負責解析與存檔數據（Consumer），確保掃描任務不被資料庫 IO 堵塞。
 - **斷點續傳 (State Persistence)**：
   - 重啟後自動從資料庫讀取最後進度，無縫恢復同步。
+- [x] Chunked Catch-up Logic
+    - [x] Add `MAX_POLL_RANGE` and range clamping logic
+    - [x] Update README with catch-up details
+- [x] Verification & Demo
 
 ## 🛠 技術棧
 
@@ -53,6 +57,10 @@ mvn spring-boot:run
    UPDATE TRANSFER_EVENTS SET BLOCK_HASH = '0xINVALID' WHERE ID = (SELECT MAX(ID) FROM TRANSFER_EVENTS);
    ```
 4. 再次啟動程式，觀察日誌中的 `⚠️ 【偵測到分岔！】` 與 `🔄 【自動回退】`。
+
+### 4. 分段同步與自動補抓 (Chunked Catch-up)
+*   **問題**：若程式關機過久，重啟後一次抓取數千個區塊會被 RPC 節點封鎖或回傳錯誤。
+*   **對策**：實作了 `MAX_POLL_RANGE=100` 的限制。系統會自動偵測進度差距，並以每 100 區塊為一組進行「分段下載」，直到追上最新高度為止。
 
 ---
 
